@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * A published blog post persisted as a JPA entity.
@@ -20,13 +21,15 @@ import java.time.Instant;
  * The fields {@code title}, {@code subTitle}, and {@code body} must be
  * non-{@code null} when this entity is persisted. The {@code createdAt}
  * timestamp is assigned when the entity is first persisted and must not
- * be changed afterward.
+ * be changed afterward. A blog may have zero or more {@link User}
+ * authors through the {@code authors} association.
  * <p>
  * This class is not thread-safe. Concurrent access from multiple threads
  * requires external synchronization.
  *
  * @author Valerius
  * @see Instant
+ * @see User
  */
 @Data
 @Entity
@@ -71,6 +74,16 @@ public class Blog {
     private String body;
 
     /**
+     * Users credited as authors of this blog post.
+     * <p>
+     * May be empty. Duplicate membership is not prohibited by this
+     * type. The list must be non-{@code null} before
+     * {@link #addAuthor(User)} is invoked.
+     */
+    @ManyToMany
+    private List<User> authors;
+
+    /**
      * Instant at which this blog post was first persisted.
      * <p>
      * Assigned automatically on insert and not updated thereafter.
@@ -80,4 +93,14 @@ public class Blog {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    /**
+     * Appends the given user to this blog's author list.
+     *
+     * @param author the user to add; must not be {@code null}
+     * @throws NullPointerException if {@code authors} or {@code author}
+     *         is {@code null}
+     */
+    public void addAuthor(User author) {
+        this.authors.add(author);
+    }
 }

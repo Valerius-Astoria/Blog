@@ -1,0 +1,2 @@
+1. Refer to this documentation to write Javadocs for this project: https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#principles
+2. Refer to this blog to write meaningful commit messages. 

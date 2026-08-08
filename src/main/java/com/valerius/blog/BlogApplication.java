@@ -4,10 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the Blog Spring Boot application.
- * <p>
- * Enables component scanning and auto-configuration for the
- * {@code com.valerius.blog} base package and its subpackages.
+ * Spring Boot entry point for the Valerius Blog application.
  *
  * @author Valerius
  */
@@ -15,10 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BlogApplication {
 
     /**
-     * Launches the application.
+     * Boots the application context.
      *
-     * @param args command-line arguments passed to the Spring
-     *             application context; must not be {@code null}
+     * @param args command-line arguments; must not be {@code null}
      */
     public static void main(String[] args) {
         SpringApplication.run(BlogApplication.class, args);

@@ -4,13 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Smoke tests for {@link BlogApplication} startup.
+ * Context-load smoke tests for {@link BlogApplication}.
+ *
+ * @author Valerius
  */
 @SpringBootTest
 class BlogApplicationTests {
 
     /**
-     * Verifies that the application context loads successfully.
+     * Fails if the application context cannot start.
      */
     @Test
     void contextLoads() {

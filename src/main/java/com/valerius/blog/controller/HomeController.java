@@ -4,17 +4,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * Handles requests for the application root path.
+ * Maps the site root to the create-post flow.
+ * <p>
+ * A GET to {@code /} redirects to {@code /create}.
  *
  * @author Valerius
+ * @see CreateBlogController
  */
 @Controller
 public class HomeController {
 
     /**
-     * Redirects clients from the site root to the blog creation page.
+     * Redirects {@code /} to {@code /create}.
      *
-     * @return a redirect view name targeting {@code /create}
+     * @return redirect view name for {@code /create}
      */
     @GetMapping("/")
     private String home() {

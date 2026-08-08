@@ -8,53 +8,34 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Persistence operations for {@link Blog} entities.
+ * Spring Data repository for {@link Blog} aggregates.
  * <p>
- * Extends {@link JpaRepository} with identifier type {@link Long}, and
- * therefore provides the standard create, read, update, delete, flush,
- * and query-by-example operations defined by that interface. Custom
- * query methods declared here are implemented by Spring Data JPA from
- * their method signatures.
- * <p>
- * Implementations of this interface are not required to be thread-safe
- * for concurrent use of a single repository proxy from multiple threads
- * without external coordination; typical Spring usage obtains the bean
- * as a singleton and relies on the underlying persistence context
- * scoping.
+ * Inherits standard {@link JpaRepository} operations for entity type
+ * {@link Blog} and id type {@link Long}. Declared query methods are
+ * derived from their names by Spring Data JPA.
  *
  * @author Valerius
  * @see Blog
- * @see JpaRepository
  */
 public interface BlogRepository extends JpaRepository<Blog, Long> {
 
     /**
-     * Returns every blog post whose author list contains the given user.
-     * <p>
-     * A blog matches if and only if {@code author} is an element of that
-     * blog's {@code authors} association. The returned list is empty if
-     * no such blog exists; it is never {@code null}. The order of
-     * elements is not specified.
+     * Returns blogs that include {@code author} in {@code authors}.
+     * Never {@code null}; empty if none match. Order is unspecified.
      *
-     * @param author the user that must appear among a blog's authors;
-     *               must not be {@code null}
-     * @return the matching blog posts, possibly empty
+     * @param author required author; must not be {@code null}
+     * @return matching blogs, possibly empty
      */
     List<Blog> findByAuthorsContaining(User author);
 
     /**
-     * Returns the blog with the given id when the given user is among
-     * its authors.
-     * <p>
-     * The result is empty if no blog has the given id, or if a blog
-     * with that id exists but {@code author} is not an element of its
-     * {@code authors} association.
+     * Returns the blog with {@code id} when {@code author} is among its
+     * authors; otherwise empty.
      *
-     * @param id     the blog identifier; must not be {@code null}
-     * @param author the user that must appear among the blog's authors;
-     *               must not be {@code null}
-     * @return an {@code Optional} describing the matching blog, or an
-     *         empty {@code Optional} if none matches
+     * @param id     blog id; must not be {@code null}
+     * @param author required author; must not be {@code null}
+     * @return the matching blog, or empty if id is unknown or the user
+     *         is not an author
      */
     Optional<Blog> findByIdAndAuthorsContaining(Long id, User author);
 

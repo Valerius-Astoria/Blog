@@ -1,54 +1,52 @@
 package com.valerius.blog.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
- * An account holder who may authenticate with this application.
+ * An application account, mapped to table {@code app_user}.
  * <p>
- * Persisted under the table name {@code app_user} so the mapping does
- * not collide with the SQL reserved word {@code USER}.
+ * Implements Spring Security {@link UserDetails}:
+ * {@link #getUsername()} is {@code email},
+ * {@link #getPassword()} is {@code passwordHash}, and
+ * {@link #getAuthorities()} grants {@code ROLE_USER}. Account-status
+ * checks use the {@code UserDetails} defaults (enabled, non-expired,
+ * non-locked).
  * <p>
- * Two {@code User} instances are equal if and only if their
- * {@link #id} values are equal, including when both identifiers are
- * {@code null}. Equality and hash code ignore all other fields of this
- * class. Callers must not rely on hash-based collections remaining
- * valid if an identifier is assigned after an instance has already been
- * inserted into such a collection.
+ * Equality and hash code use only {@link #id}, including when both ids
+ * are {@code null}. Do not place an instance in a hash-based collection
+ * before its id is assigned, then rely on that collection after
+ * assignment.
  * <p>
- * The fields {@code email} and {@code passwordHash} must be
- * non-{@code null} when this entity is persisted. Among persisted
- * users, {@code email} values are unique. The {@code createdAt}
- * timestamp is assigned when the entity is first persisted and must not
- * be changed afterward.
+ * {@code email} and {@code passwordHash} must be non-{@code null} when
+ * persisted. Email is unique among persisted users.
+ * {@code createdAt} is set on first insert and is not updated afterward.
+ * {@link #toString()} omits {@code passwordHash}.
  * <p>
- * The generated string representation of this class omits
- * {@code passwordHash}.
- * <p>
- * This class is not thread-safe. Concurrent access from multiple threads
- * requires external synchronization.
+ * This class is not thread-safe.
  *
  * @author Valerius
- * @see Instant
  */
 @Data
 @Entity
 @Table(name = "app_user")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class User {
+public class User implements UserDetails {
 
     /**
-     * Unique identifier of this user.
-     * <p>
-     * {@code null} until the persistence provider assigns a value on
-     * insert. After assignment, the value is unique among persisted
-     * {@code User} instances and is the sole basis for
-     * {@link #equals(Object)} and {@link #hashCode()}.
+     * Persistent identity of this account, or {@code null} before
+     * insert. Sole basis for {@link #equals(Object)} and
+     * {@link #hashCode()}.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,33 +54,59 @@ public class User {
     private Long id;
 
     /**
-     * Login address that uniquely identifies this user among persisted
-     * accounts.
-     * Must be non-{@code null} when persisted; empty strings are not
-     * prohibited by this type. Case sensitivity of uniqueness is
-     * determined by the underlying datastore collation.
+     * Unique login address among persisted accounts.
+     * Non-{@code null} when persisted; empty strings are allowed.
+     * Case sensitivity of uniqueness follows the datastore collation.
      */
     @Column(nullable = false, unique = true)
     private String email;
 
     /**
-     * One-way digest of this user's password credentials.
-     * Must be non-{@code null} when persisted. This value is never a
-     * plaintext password; callers store only the result of a password
-     * hashing function. Omitted from {@link #toString()}.
+     * Stored credential material for this account.
+     * Non-{@code null} when persisted. Omitted from
+     * {@link #toString()}.
      */
     @ToString.Exclude
-    @Column(nullable = false)
     private String passwordHash;
 
     /**
-     * Instant at which this user account was first persisted.
-     * <p>
-     * Assigned automatically on insert and not updated thereafter.
-     * {@code null} only for instances that have never been persisted.
+     * Creation time assigned on first persist; {@code null} only before
+     * insert. Not updated afterward.
      */
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    /**
+     * Returns the authorities granted to this account.
+     * <p>
+     * Always a list containing a single {@code ROLE_USER} authority.
+     *
+     * @return non-empty collection of authorities; never {@code null}
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    /**
+     * Returns the stored credential for authentication.
+     *
+     * @return {@code passwordHash}, or {@code null} if unset
+     */
+    @Override
+    public @Nullable String getPassword() {
+        return passwordHash;
+    }
+
+    /**
+     * Returns the Spring Security username for this account.
+     *
+     * @return {@code email}; may be {@code null} before it is set
+     */
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
 }

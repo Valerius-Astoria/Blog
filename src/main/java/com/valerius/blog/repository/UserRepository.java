@@ -1,44 +1,27 @@
 package com.valerius.blog.repository;
 
 import com.valerius.blog.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
 /**
- * Persistence operations for {@link User} entities.
+ * Spring Data repository for {@link User} aggregates.
  * <p>
- * Extends {@link JpaRepository} with identifier type {@link Long}, and
- * therefore provides the standard create, read, update, delete, flush,
- * and query-by-example operations defined by that interface. Custom
- * query methods declared here are implemented by Spring Data JPA from
- * their method signatures.
- * <p>
- * Among persisted users, {@link User#getEmail() email} values are
- * unique, so lookup by email yields at most one result.
- * <p>
- * Implementations of this interface are not required to be thread-safe
- * for concurrent use of a single repository proxy from multiple threads
- * without external coordination; typical Spring usage obtains the bean
- * as a singleton and relies on the underlying persistence context
- * scoping.
+ * Inherits standard {@link CrudRepository} operations for entity type
+ * {@link User} and id type {@link Long}. Email is unique among
+ * persisted users, so email lookup returns at most one row.
  *
  * @author Valerius
  * @see User
- * @see JpaRepository
  */
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends CrudRepository<User, Long> {
 
     /**
-     * Returns the user with the given email address, if any.
-     * <p>
-     * Because email is unique among persisted users, this method returns
-     * at most one match. The result is empty if no user has the given
-     * email.
+     * Returns the user with the given email, if present.
      *
-     * @param email the email address to match; must not be {@code null}
-     * @return an {@code Optional} describing the matching user, or an
-     *         empty {@code Optional} if none exists
+     * @param email email to match; must not be {@code null}
+     * @return the matching user, or empty if none exists
      */
     Optional<User> findByEmail(String email);
 

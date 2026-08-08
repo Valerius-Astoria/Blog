@@ -8,15 +8,15 @@ import org.springframework.boot.security.autoconfigure.SecurityProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * Seeds a persisted {@link User} matching the configured Spring
- * Security default username on application startup.
+ * Ensures a persisted {@link User} exists for the configured default
+ * Spring Security username.
  * <p>
- * Runs after the application context is ready. If no user exists whose
- * email equals {@code spring.security.user.name}, inserts one so that
- * {@link com.valerius.blog.security.CurrentUserService} can resolve the
- * in-memory security principal to a database row. The stored
- * {@code passwordHash} is a placeholder; authentication continues to
- * use Spring Security's configured user password.
+ * On startup, if no row has email equal to
+ * {@code spring.security.user.name}, inserts one. The inserted
+ * {@code passwordHash} is a placeholder that only satisfies the
+ * non-null persistence constraint; it is not a usable login
+ * credential under the database-backed
+ * {@link org.springframework.security.core.userdetails.UserDetailsService}.
  *
  * @author Valerius
  * @see UserRepository
@@ -29,14 +29,9 @@ public class DataSeeder implements ApplicationRunner {
     private final SecurityProperties securityProperties;
 
     /**
-     * Creates a seeder that writes the default security user into the
-     * database when missing.
-     *
-     * @param userRepository     repository used to look up and save
-     *                           users; must not be {@code null}
-     * @param securityProperties Boot security properties providing the
-     *                           default username; must not be
-     *                           {@code null}
+     * @param userRepository     user store; must not be {@code null}
+     * @param securityProperties source of the default username; must
+     *                           not be {@code null}
      */
     public DataSeeder(UserRepository userRepository,
             SecurityProperties securityProperties) {
@@ -45,14 +40,11 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     /**
-     * Inserts a user whose email equals
-     * {@code spring.security.user.name} if that email is not already
-     * present.
-     * <p>
-     * This method is idempotent with respect to email: a second
-     * startup against a non-empty store does not insert a duplicate.
+     * Inserts the default security user when missing.
+     * Idempotent per email: does not insert a duplicate if the email
+     * already exists.
      *
-     * @param args application arguments; ignored
+     * @param args application arguments; unused
      */
     @Override
     public void run(ApplicationArguments args) {
@@ -61,8 +53,7 @@ public class DataSeeder implements ApplicationRunner {
         if (userRepository.findByEmail(email).isEmpty()) {
             User user = new User();
             user.setEmail(email);
-            // Login uses Spring Security's in-memory user; this value
-            // only satisfies the non-null persistence constraint.
+            // Placeholder only; not a usable credential for DB login.
             user.setPasswordHash("{noop}unused");
             userRepository.save(user);
         }

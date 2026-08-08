@@ -197,44 +197,6 @@
             text-decoration: underline;
         }
 
-        .oauth {
-            margin-top: 2rem;
-            padding-top: 1.75rem;
-            border-top: 1px solid var(--line);
-            display: grid;
-            gap: 0.75rem;
-            animation: fade-in 0.9s 0.28s ease-out both;
-        }
-
-        .oauth-label {
-            margin: 0;
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: var(--ink-muted);
-        }
-
-        .oauth-link {
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            color: var(--ink);
-            font-weight: 600;
-            padding: 0.9rem 1.1rem;
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            background: var(--field);
-            box-shadow: var(--shadow);
-            transition: border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
-        }
-
-        .oauth-link:hover {
-            border-color: var(--accent);
-            color: var(--accent-deep);
-            transform: translateY(-1px);
-        }
-
         @media (max-width: 560px) {
             .page {
                 padding-top: 2.25rem;
@@ -251,15 +213,7 @@
     <h1 class="brand">Valerius</h1>
     <p class="lede">Sign in to write and read your posts.</p>
 
-    <p class="banner banner-error"
-       th:if="${param.error != null and param.error[0] == 'oauth'}">
-        Social sign-in failed
-        <span th:if="${param.oauthError != null}"
-              th:text="| (${param.oauthError[0]})|"> (oauth)</span>.
-        Try again, or use email and password.
-    </p>
-    <p class="banner banner-error"
-       th:if="${param.error != null and param.error[0] != 'oauth'}">
+    <p class="banner banner-error" th:if="${param.error}">
         Email or password is incorrect.
     </p>
     <p class="banner banner-ok" th:if="${param.loggedOut}">
@@ -291,12 +245,6 @@
             <button type="submit">Sign in</button>
         </div>
     </form>
-
-    <div class="oauth" aria-label="Social sign-in">
-        <p class="oauth-label">Or continue with</p>
-        <a class="oauth-link" th:href="@{/oauth2/authorization/google}">Google</a>
-        <a class="oauth-link" th:href="@{/oauth2/authorization/github}">GitHub</a>
-    </div>
 
     <p class="footer-note">
         New here?

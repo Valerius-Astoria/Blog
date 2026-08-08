@@ -10,8 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -19,13 +17,11 @@ import org.springframework.security.web.SecurityFilterChain;
  * <p>
  * {@link #userDetailsService(UserRepository)} treats the authentication
  * username as an email and loads the matching {@link User} from
- * {@link UserRepository#findByEmail(String)}. Form login and OAuth2
- * login (Google/GitHub) share the same persisted {@link User} model.
+ * {@link UserRepository#findByEmail(String)}.
  *
  * @author Valerius
  * @see UserRepository
  * @see User
- * @see OAuth2LoginSuccessHandler
  */
 @Configuration
 public class SecurityConfig {
@@ -68,40 +64,21 @@ public class SecurityConfig {
     }
 
     /**
-     * Configures authorization, form login, OAuth2 login, remember-me,
-     * and logout.
+     * Configures authorization, form login, remember-me, and logout.
      *
      * @param http HTTP security builder; must not be {@code null}
      * @param userDetailsService account lookup for form and remember-me
      *                           authentication; must not be {@code null}
-     * @param oauth2LoginSuccessHandler maps OAuth principals to
-     *                                  persisted users; must not be
-     *                                  {@code null}
-     * @param oauth2LoginFailureHandler redirects OAuth failures with an
-     *                                  OAuth-specific error; must not be
-     *                                  {@code null}
-     * @param authorizationRequestRepository cookie store for the OAuth
-     *                                       authorization request / PKCE
-     *                                       verifier; must not be
-     *                                       {@code null}
      * @return the built filter chain; never {@code null}
      * @throws Exception if configuration fails
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-            UserDetailsService userDetailsService,
-            OAuth2LoginSuccessHandler oauth2LoginSuccessHandler,
-            OAuth2LoginFailureHandler oauth2LoginFailureHandler,
-            AuthorizationRequestRepository<OAuth2AuthorizationRequest>
-                    authorizationRequestRepository)
+            UserDetailsService userDetailsService)
             throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                            "/login",
-                            "/register",
-                            "/oauth2/**",
-                            "/login/oauth2/**")
+                    .requestMatchers("/login", "/register")
                         .permitAll()
                     .requestMatchers("/history", "/history/**", "/create")
                         .hasRole("USER")
@@ -110,13 +87,6 @@ public class SecurityConfig {
                     .loginPage("/login")
                     .defaultSuccessUrl("/create", true)
                     .permitAll())
-            .oauth2Login(oauth -> oauth
-                    .loginPage("/login")
-                    .authorizationEndpoint(authorization -> authorization
-                            .authorizationRequestRepository(
-                                    authorizationRequestRepository))
-                    .successHandler(oauth2LoginSuccessHandler)
-                    .failureHandler(oauth2LoginFailureHandler))
             .rememberMe(remember -> remember
                     .key(rememberMeKey)
                     .alwaysRemember(true)

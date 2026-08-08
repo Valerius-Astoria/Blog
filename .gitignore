@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local secrets (Neon / OAuth) — never commit ###
+src/main/resources/application-local.properties
+.env
+.env.*
+!.env.example

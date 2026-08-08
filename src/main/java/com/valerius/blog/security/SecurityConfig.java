@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
 
 /**
  * Declares password-encoding and user-lookup beans for Spring Security.
@@ -63,19 +64,26 @@ public class SecurityConfig {
                         "User '" + username + "' not found"));
     }
 
+    @Bean
+    public OAuthAwareRememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
+        return new OAuthAwareRememberMeServices(rememberMeKey, userDetailsService);
+    }
+
     /**
      * Configures authorization, form login, remember-me, and logout.
      *
      * @param http HTTP security builder; must not be {@code null}
-     * @param userDetailsService account lookup for form and remember-me
-     *                           authentication; must not be {@code null}
      * @return the built filter chain; never {@code null}
      * @throws Exception if configuration fails
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-            UserDetailsService userDetailsService)
-            throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            RememberMeServices rememberMeServices,
+            GithubOAuth2UserService githubOAuth2UserService,
+            GoogleOidcUserService googleOidcUserService,
+            OAuth2LoginSuccessHandler oauth2SuccessHandler,
+            OAuth2LoginFailureHandler oauth2FailureHandler) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/login", "/register")
@@ -87,10 +95,15 @@ public class SecurityConfig {
                     .loginPage("/login")
                     .defaultSuccessUrl("/create", true)
                     .permitAll())
+            .oauth2Login(oauth2 -> oauth2
+                    .loginPage("/login")
+                    .userInfoEndpoint(userInfo -> userInfo
+                            .userService(githubOAuth2UserService)
+                            .oidcUserService(googleOidcUserService))
+                    .successHandler(oauth2SuccessHandler)
+                    .failureHandler(oauth2FailureHandler))
             .rememberMe(remember -> remember
-                    .key(rememberMeKey)
-                    .alwaysRemember(true)
-                    .userDetailsService(userDetailsService))
+                    .rememberMeServices(rememberMeServices))
             .logout(logout -> logout
                     .logoutSuccessUrl("/login?loggedOut"));
 

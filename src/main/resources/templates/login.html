@@ -251,7 +251,15 @@
     <h1 class="brand">Valerius</h1>
     <p class="lede">Sign in to write and read your posts.</p>
 
-    <p class="banner banner-error" th:if="${param.error}">
+    <p class="banner banner-error"
+       th:if="${param.error != null and param.error[0] == 'oauth'}">
+        Social sign-in failed
+        <span th:if="${param.oauthError != null}"
+              th:text="| (${param.oauthError[0]})|"> (oauth)</span>.
+        Try again, or use email and password.
+    </p>
+    <p class="banner banner-error"
+       th:if="${param.error != null and param.error[0] != 'oauth'}">
         Email or password is incorrect.
     </p>
     <p class="banner banner-ok" th:if="${param.loggedOut}">
@@ -286,8 +294,8 @@
 
     <div class="oauth" aria-label="Social sign-in">
         <p class="oauth-label">Or continue with</p>
-        <a class="oauth-link" th:href="@{/oauth2/google}">Google</a>
-        <a class="oauth-link" th:href="@{/oauth2/github}">GitHub</a>
+        <a class="oauth-link" th:href="@{/oauth2/authorization/google}">Google</a>
+        <a class="oauth-link" th:href="@{/oauth2/authorization/github}">GitHub</a>
     </div>
 
     <p class="footer-note">

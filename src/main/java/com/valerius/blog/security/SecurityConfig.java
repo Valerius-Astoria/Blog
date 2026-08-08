@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -75,13 +77,23 @@ public class SecurityConfig {
      * @param oauth2LoginSuccessHandler maps OAuth principals to
      *                                  persisted users; must not be
      *                                  {@code null}
+     * @param oauth2LoginFailureHandler redirects OAuth failures with an
+     *                                  OAuth-specific error; must not be
+     *                                  {@code null}
+     * @param authorizationRequestRepository cookie store for the OAuth
+     *                                       authorization request / PKCE
+     *                                       verifier; must not be
+     *                                       {@code null}
      * @return the built filter chain; never {@code null}
      * @throws Exception if configuration fails
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
             UserDetailsService userDetailsService,
-            OAuth2LoginSuccessHandler oauth2LoginSuccessHandler)
+            OAuth2LoginSuccessHandler oauth2LoginSuccessHandler,
+            OAuth2LoginFailureHandler oauth2LoginFailureHandler,
+            AuthorizationRequestRepository<OAuth2AuthorizationRequest>
+                    authorizationRequestRepository)
             throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
@@ -100,7 +112,11 @@ public class SecurityConfig {
                     .permitAll())
             .oauth2Login(oauth -> oauth
                     .loginPage("/login")
-                    .successHandler(oauth2LoginSuccessHandler))
+                    .authorizationEndpoint(authorization -> authorization
+                            .authorizationRequestRepository(
+                                    authorizationRequestRepository))
+                    .successHandler(oauth2LoginSuccessHandler)
+                    .failureHandler(oauth2LoginFailureHandler))
             .rememberMe(remember -> remember
                     .key(rememberMeKey)
                     .alwaysRemember(true)

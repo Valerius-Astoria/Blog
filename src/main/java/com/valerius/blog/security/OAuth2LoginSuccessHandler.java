@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
@@ -32,7 +33,12 @@ import java.io.IOException;
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private static final String OAUTH_PASSWORD_PLACEHOLDER = "{oauth2}nologin";
+    /**
+     * Marker hash that is not a valid BCrypt digest, so form login cannot
+     * authenticate OAuth-only accounts with a guessed password.
+     */
+    private static final String OAUTH_PASSWORD_PLACEHOLDER =
+            "{oauth2}nologin";
     private static final String DEFAULT_SUCCESS_URL = "/create";
 
     private final UserRepository userRepository;
@@ -61,6 +67,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
      *         (and no GitHub login fallback)
      */
     @Override
+    @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication)

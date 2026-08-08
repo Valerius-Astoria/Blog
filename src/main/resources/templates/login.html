@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in — Valerius</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #14201c;
+            --ink-muted: #4a5c55;
+            --paper: #e8efe9;
+            --paper-deep: #d5e2d8;
+            --field: #f5faf6;
+            --accent: #1f6b4a;
+            --accent-deep: #145038;
+            --danger: #9b2c2c;
+            --line: rgba(20, 32, 28, 0.12);
+            --shadow: 0 18px 50px rgba(20, 32, 28, 0.08);
+            --radius: 14px;
+            --font-display: "Fraunces", Georgia, serif;
+            --font-body: "Manrope", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--ink);
+            background:
+                radial-gradient(1200px 600px at 10% -10%, #c8ddd0 0%, transparent 55%),
+                radial-gradient(900px 500px at 100% 0%, #b7cfc4 0%, transparent 50%),
+                linear-gradient(165deg, var(--paper) 0%, var(--paper-deep) 100%);
+            background-attachment: fixed;
+        }
+
+        .page {
+            width: min(440px, calc(100% - 2rem));
+            margin: 0 auto;
+            padding: 3.5rem 0 4.5rem;
+            animation: rise 0.7s ease-out both;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-size: clamp(2.75rem, 8vw, 4.25rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 0.95;
+            margin: 0 0 0.75rem;
+            animation: rise 0.8s 0.08s ease-out both;
+        }
+
+        .lede {
+            margin: 0 0 2.5rem;
+            max-width: 22rem;
+            font-size: 1.05rem;
+            line-height: 1.55;
+            color: var(--ink-muted);
+            animation: fade-in 0.9s 0.2s ease-out both;
+        }
+
+        form {
+            display: grid;
+            gap: 1.35rem;
+            animation: rise 0.85s 0.18s ease-out both;
+        }
+
+        .field {
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+        }
+
+        input {
+            width: 100%;
+            margin: 0;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--field);
+            color: var(--ink);
+            font: inherit;
+            padding: 0.95rem 1.1rem;
+            box-shadow: var(--shadow);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(31, 107, 74, 0.18), var(--shadow);
+            transform: translateY(-1px);
+        }
+
+        input::placeholder {
+            color: #7a8f85;
+        }
+
+        .banner {
+            margin: 0 0 0.25rem;
+            padding: 0.85rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            line-height: 1.45;
+            animation: rise 0.75s 0.12s ease-out both;
+        }
+
+        .banner-error {
+            background: rgba(155, 44, 44, 0.1);
+            color: var(--danger);
+        }
+
+        .banner-ok {
+            background: rgba(31, 107, 74, 0.12);
+            color: var(--accent-deep);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem 1.25rem;
+            margin-top: 0.35rem;
+        }
+
+        button[type="submit"] {
+            appearance: none;
+            border: 0;
+            border-radius: 999px;
+            background: var(--accent);
+            color: #f4faf6;
+            font: inherit;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            padding: 0.95rem 1.6rem;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 24px rgba(31, 107, 74, 0.28);
+        }
+
+        button[type="submit"]:hover {
+            background: var(--accent-deep);
+            transform: translateY(-2px);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        .footer-note {
+            margin: 2rem 0 0;
+            font-size: 0.95rem;
+            color: var(--ink-muted);
+            animation: fade-in 0.9s 0.3s ease-out both;
+        }
+
+        .footer-note a {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .footer-note a:hover {
+            text-decoration: underline;
+        }
+
+        .oauth {
+            margin-top: 2rem;
+            padding-top: 1.75rem;
+            border-top: 1px solid var(--line);
+            display: grid;
+            gap: 0.75rem;
+            animation: fade-in 0.9s 0.28s ease-out both;
+        }
+
+        .oauth-label {
+            margin: 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+        }
+
+        .oauth-link {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            color: var(--ink);
+            font-weight: 600;
+            padding: 0.9rem 1.1rem;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--field);
+            box-shadow: var(--shadow);
+            transition: border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        }
+
+        .oauth-link:hover {
+            border-color: var(--accent);
+            color: var(--accent-deep);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 560px) {
+            .page {
+                padding-top: 2.25rem;
+            }
+
+            button[type="submit"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <h1 class="brand">Valerius</h1>
+    <p class="lede">Sign in to write and read your posts.</p>
+
+    <p class="banner banner-error" th:if="${param.error}">
+        Email or password is incorrect.
+    </p>
+    <p class="banner banner-ok" th:if="${param.loggedOut}">
+        You have been signed out.
+    </p>
+
+    <form th:action="@{/login}" method="post">
+        <div class="field">
+            <label for="username">Email</label>
+            <input id="username"
+                   name="username"
+                   type="email"
+                   placeholder="you@example.com"
+                   required
+                   autocomplete="username">
+        </div>
+
+        <div class="field">
+            <label for="password">Password</label>
+            <input id="password"
+                   name="password"
+                   type="password"
+                   placeholder="Your password"
+                   required
+                   autocomplete="current-password">
+        </div>
+
+        <div class="actions">
+            <button type="submit">Sign in</button>
+        </div>
+    </form>
+
+    <div class="oauth" aria-label="Social sign-in">
+        <p class="oauth-label">Or continue with</p>
+        <a class="oauth-link" th:href="@{/oauth2/google}">Google</a>
+        <a class="oauth-link" th:href="@{/oauth2/github}">GitHub</a>
+    </div>
+
+    <p class="footer-note">
+        New here?
+        <a th:href="@{/register}">Create an account</a>
+    </p>
+</main>
+</body>
+</html>

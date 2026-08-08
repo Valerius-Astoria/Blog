@@ -62,7 +62,8 @@
             animation: fade-in 0.7s 0.05s ease-out both;
         }
 
-        .nav a {
+        .nav a,
+        .nav button {
             color: var(--ink-muted);
             text-decoration: none;
             font-size: 0.9rem;
@@ -71,8 +72,23 @@
             transition: color 0.2s ease;
         }
 
+        .nav form {
+            display: inline;
+            margin: 0;
+        }
+
+        .nav button {
+            appearance: none;
+            border: 0;
+            background: none;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+        }
+
         .nav a:hover,
-        .nav a[aria-current="page"] {
+        .nav a[aria-current="page"],
+        .nav button:hover {
             color: var(--accent);
         }
 
@@ -178,7 +194,10 @@
 <main class="page">
     <nav class="nav" aria-label="Primary">
         <a th:href="@{/create}">Write</a>
-        <a th:href="@{/History}" aria-current="page">History</a>
+        <a th:href="@{/history}" aria-current="page">History</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sign out</button>
+        </form>
     </nav>
 
     <h1 class="brand">Valerius</h1>
@@ -191,7 +210,7 @@
 
     <ul class="archive" th:if="${!#lists.isEmpty(blogs)}">
         <li th:each="post : ${blogs}">
-            <a th:href="@{/History/{id}(id=${post.id})}">
+            <a th:href="@{/history/{id}(id=${post.id})}">
                 <h2 class="post-title" th:text="${post.title}">Title</h2>
                 <p class="post-subtitle" th:text="${post.subTitle}">Subtitle</p>
                 <p class="post-meta">

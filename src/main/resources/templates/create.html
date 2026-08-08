@@ -67,6 +67,61 @@
             to { opacity: 1; }
         }
 
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 1.35rem;
+            margin-bottom: 2rem;
+            animation: fade-in 0.7s 0.05s ease-out both;
+        }
+
+        .nav a,
+        .nav button {
+            color: var(--ink-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: color 0.2s ease;
+        }
+
+        .nav form {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            gap: 0;
+            animation: none;
+        }
+
+        .nav button {
+            appearance: none;
+            border: 0;
+            border-radius: 0;
+            background: none;
+            padding: 0;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--ink-muted);
+            cursor: pointer;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .nav button:hover,
+        .nav button:active {
+            background: none;
+            transform: none;
+            box-shadow: none;
+            color: var(--accent);
+        }
+
+        .nav a:hover,
+        .nav a[aria-current="page"] {
+            color: var(--accent);
+        }
+
         .brand {
             font-family: var(--font-display);
             font-size: clamp(2.75rem, 8vw, 4.25rem);
@@ -158,7 +213,7 @@
             margin-top: 0.35rem;
         }
 
-        button[type="submit"] {
+        .actions button[type="submit"] {
             appearance: none;
             border: 0;
             border-radius: 999px;
@@ -173,12 +228,12 @@
             box-shadow: 0 10px 24px rgba(31, 107, 74, 0.28);
         }
 
-        button[type="submit"]:hover {
+        .actions button[type="submit"]:hover {
             background: var(--accent-deep);
             transform: translateY(-2px);
         }
 
-        button[type="submit"]:active {
+        .actions button[type="submit"]:active {
             transform: translateY(0);
         }
 
@@ -191,7 +246,7 @@
                 min-height: 12rem;
             }
 
-            button[type="submit"] {
+            .actions button[type="submit"] {
                 width: 100%;
             }
         }
@@ -199,6 +254,14 @@
 </head>
 <body>
 <main class="page">
+    <nav class="nav" aria-label="Primary">
+        <a th:href="@{/create}" aria-current="page">Write</a>
+        <a th:href="@{/history}">History</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sign out</button>
+        </form>
+    </nav>
+
     <h1 class="brand">Valerius</h1>
     <p class="lede">Write a new post. Title, subtitle, and body are saved when you publish.</p>
 

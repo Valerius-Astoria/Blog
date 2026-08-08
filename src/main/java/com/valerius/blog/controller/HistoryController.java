@@ -3,9 +3,9 @@ package com.valerius.blog.controller;
 import com.valerius.blog.model.Blog;
 import com.valerius.blog.model.User;
 import com.valerius.blog.repository.BlogRepository;
-import com.valerius.blog.security.CurrentUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,88 +14,70 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Handles browsing of the authenticated user's published blog posts
- * under {@code /History}.
+ * Serves the signed-in user's post archive at {@code /history}.
  * <p>
- * The list view exposes every blog that includes the current user among
- * its authors. The detail view returns a single such blog by id, or
- * responds with {@link HttpStatus#NOT_FOUND} when the id is unknown or
- * not authored by the current user.
+ * List and detail views include only blogs that list the current user
+ * as an author. Detail requests for unknown or unauthorized ids yield
+ * {@link HttpStatus#NOT_FOUND}.
  *
  * @author Valerius
  * @see BlogRepository
- * @see CurrentUserService
  */
 @Controller
-@RequestMapping("/History")
+@RequestMapping("/history")
 public class HistoryController {
 
     private final BlogRepository blogRepository;
-    private final CurrentUserService currentUserService;
 
     /**
-     * Creates a controller that loads history from the given
-     * repository and user service.
-     *
-     * @param blogRepository     repository used to find blogs by
-     *                           author; must not be {@code null}
-     * @param currentUserService service used to resolve the
-     *                           authenticated account; must not be
-     *                           {@code null}
+     * @param blogRepository blog queries; must not be {@code null}
      */
-    public HistoryController(BlogRepository blogRepository,
-            CurrentUserService currentUserService) {
+    public HistoryController(BlogRepository blogRepository) {
         this.blogRepository = blogRepository;
-        this.currentUserService = currentUserService;
     }
 
     /**
-     * Displays the authenticated user's blog archive.
+     * Shows all posts authored by the current user.
      * <p>
-     * Adds the attribute {@code blogs} to the model: the list of posts
-     * whose authors include the current user. The list is empty when
-     * the user has no posts; it is never {@code null}.
+     * Model attribute {@code blogs} is the matching list; never
+     * {@code null}, empty when the user has no posts.
      *
-     * @param authentication the current authentication; must not be
+     * @param authentication current {@link Authentication}; unused by
+     *                       this method
+     * @param model          view model; must not be {@code null}
+     * @param user           authenticated account; must not be
      *                       {@code null}
-     * @param model          the view model to receive {@code blogs};
-     *                       must not be {@code null}
-     * @return the logical view name {@code history}
-     * @throws IllegalStateException if the authenticated principal
-     *         has no matching persisted user
+     * @return view name {@code history}
      */
     @GetMapping
-    public String history(Authentication authentication, Model model) {
-        User user = currentUserService.require(authentication);
+    public String history(Authentication authentication, Model model, @AuthenticationPrincipal User user) {
         model.addAttribute("blogs",
                 blogRepository.findByAuthorsContaining(user));
         return "history";
     }
 
     /**
-     * Displays one blog from the authenticated user's archive.
+     * Shows one post authored by the current user.
      * <p>
-     * Adds the attribute {@code blog} when a post with the given
-     * {@code id} exists and includes the current user among its
-     * authors.
+     * Model attribute {@code blog} is set when the id exists and the
+     * current user is among its authors.
      *
-     * @param id             the blog identifier
-     * @param authentication the current authentication; must not be
+     * @param id             blog id; must not be {@code null}
+     * @param user           authenticated account; must not be
      *                       {@code null}
-     * @param model          the view model to receive {@code blog};
-     *                       must not be {@code null}
-     * @return the logical view name {@code history-detail}
-     * @throws IllegalStateException if the authenticated principal
-     *         has no matching persisted user
+     * @param authentication current {@link Authentication}; unused by
+     *                       this method
+     * @param model          view model; must not be {@code null}
+     * @return view name {@code history-detail}
      * @throws ResponseStatusException with {@link HttpStatus#NOT_FOUND}
-     *         if no matching blog exists for this user
+     *         when no matching authored blog exists
      */
     @GetMapping("/{id}")
     public String historyDetail(
             @PathVariable Long id,
+            @AuthenticationPrincipal User user,
             Authentication authentication,
             Model model) {
-        User user = currentUserService.require(authentication);
         Blog blog = blogRepository.findByIdAndAuthorsContaining(id, user)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,

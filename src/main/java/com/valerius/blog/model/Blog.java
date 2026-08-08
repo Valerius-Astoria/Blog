@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -76,12 +77,11 @@ public class Blog {
     /**
      * Users credited as authors of this blog post.
      * <p>
-     * May be empty. Duplicate membership is not prohibited by this
-     * type. The list must be non-{@code null} before
-     * {@link #addAuthor(User)} is invoked.
+     * May be empty. Defaults to an empty mutable list. Duplicate
+     * membership is not prohibited by this type.
      */
     @ManyToMany
-    private List<User> authors;
+    private List<User> authors = new ArrayList<>();
 
     /**
      * Instant at which this blog post was first persisted.

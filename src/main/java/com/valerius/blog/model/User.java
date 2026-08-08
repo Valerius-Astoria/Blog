@@ -11,6 +11,9 @@ import java.time.Instant;
 /**
  * An account holder who may authenticate with this application.
  * <p>
+ * Persisted under the table name {@code app_user} so the mapping does
+ * not collide with the SQL reserved word {@code USER}.
+ * <p>
  * Two {@code User} instances are equal if and only if their
  * {@link #id} values are equal, including when both identifiers are
  * {@code null}. Equality and hash code ignore all other fields of this
@@ -35,6 +38,7 @@ import java.time.Instant;
  */
 @Data
 @Entity
+@Table(name = "app_user")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 

@@ -4,6 +4,8 @@ import com.valerius.blog.model.Blog;
 import com.valerius.blog.repository.BlogRepository;
 import com.valerius.blog.security.CurrentUserService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -18,15 +20,18 @@ import org.springframework.web.bind.support.SessionStatus;
  * <p>
  * GET requests render the creation form. POST requests validate the
  * submitted blog, attach the authenticated user as an author, persist
- * the entity, and redirect back to the creation form on success.
+ * the entity, and redirect to {@code /History} on success.
  *
  * @author Valerius
  * @see BlogRepository
  * @see CurrentUserService
+ * @see HistoryController
  */
 @Controller
 @RequestMapping("/create")
 public class CreateBlogController {
+
+    private static final Logger log = LoggerFactory.getLogger(CurrentUserService.class);
 
     private final BlogRepository blogRepository;
     private final CurrentUserService currentUserService;
@@ -73,7 +78,7 @@ public class CreateBlogController {
      * If {@code errors} reports validation failures, redisplays the
      * creation form without saving. Otherwise adds the authenticated
      * user as an author, saves the blog, and redirects to
-     * {@code /create}.
+     * {@code /History}.
      *
      * @param blog           the submitted blog bound from the form;
      *                       must not be {@code null}
@@ -85,7 +90,7 @@ public class CreateBlogController {
      * @param errors         binding and validation errors for
      *                       {@code blog}; must not be {@code null}
      * @return {@code create} when validation fails; otherwise a
-     *         redirect to {@code /create}
+     *         redirect to {@code /History}
      * @throws IllegalStateException if the authenticated principal
      *         has no matching persisted user
      */
@@ -102,8 +107,16 @@ public class CreateBlogController {
 
         blog.addAuthor(currentUserService.require(authentication));
         Blog saved = blogRepository.save(blog);
-        sessionStatus.setComplete();
 
-        return "redirect:/create";
+        log.info(
+                "Blog submitted: id={}, title={}, subtitle={}, body={}",
+                saved.getId(),
+                saved.getTitle(),
+                saved.getSubTitle(),
+                saved.getBody()
+        );
+
+        sessionStatus.setComplete();
+        return "redirect:/History";
     }
 }
